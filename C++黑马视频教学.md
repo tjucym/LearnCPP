@@ -795,5 +795,137 @@ int main() {
 }
 ```
 
+## 文件操作
 
+程序运行时的数据都是临时数据，一旦程序执行完毕，就会将数据进行释放
+
+可以通过文件将数据**持久化**
+
+c++对文件操作要包含的头文件：<fstream> -- 文件流
+
+文件包含两种：
+
+- 文本文件，文本以ASCII码形式存储在计算机中
+- 二进制文件，文件已文本的二进制形式存储在计算机中，一般用户不能直接读懂，需要用专门程序执行
+
+操作文件的三大类：
+
+- ofstream：写操作
+- ifstream：读操作
+- fstream：读写操作
+
+### 文本文件
+
+#### 写文件
+
+写文件步骤：
+
+1. 包含头文件`#include <fstream>`
+2. 创建流对象`ostream ofs;`
+3. 打开文件`ofs.open("文件路径", 打开方式);`
+4. 写数据`ofs<<"写入的数据";`
+5. 关闭文件`ofs.close();`
+
+文件的打开方式
+
+| 打开方式    | 解释                       |
+| ----------- | -------------------------- |
+| ios::in     | 为读文件而打开文件         |
+| ios::out    | 为写文件而打开文件         |
+| ios::ate    | 初始位置：文件尾           |
+| ios::app    | 追加方式写文件             |
+| ios::trunc  | 如果文件存在先删除，再创建 |
+| ios::binary | 二进制方式                 |
+
+如果需要配合使用两种方式，利用|操作符
+
+例如：用二进制打开写文件：`ios::binary|ios::out`
+
+```c++
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+void test01() {
+    ofstream ofs;
+    ofs.open("test.txt", ios::trunc|ios::out);
+    ofs << "This is a test txt." << endl;
+    ofs << "Today is Sunday." << endl;
+    ofs << "My name is Cheng YM." << endl;
+    ofs.close();
+}
+
+int main() {
+    test01();
+}
+```
+
+总结：
+
+- 文件操作必须包含头文件fstream
+- 读文件可以利用ofstream，或者fstream
+- 打开文件的时候需要指定操作的文件路径，以及打开方式
+- 利用<<可以向文件中写入数据
+- 操作完毕，要关闭文件
+
+### 读文件
+
+读文件与写文件的步骤类似，但是读文件方式相对较多
+
+读文件步骤：
+
+1. 包含头文件`#include <fstream>`
+2. 创建流对象`ostream ofs;`
+3. 打开文件`ofs.open("文件路径", 打开方式);`并判断文件是否打开成功`ofs.is_open`
+4. 读数据 -- 四种读数据的方式
+5. 关闭文件`ofs.close();`
+
+```c++
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+void test01() {
+    ifstream ifs;
+    ifs.open("test.txt", ios::in);
+    if (!ifs.is_open()) {
+        cout << "Failed to open the file..." << endl;
+        return;
+    }
+    string buf;
+    while ( getline(ifs, buf) ) {
+        cout << buf << endl;
+    }
+    ifs.close();
+}
+
+int main() {
+    test01();
+}
+```
+
+四种读取数据方式：
+
+```c++
+// 第一种
+	char buf[1024] = { 0 };
+    while ( ifs >> buf ) {
+        cout << buf << endl;
+    }
+// 第二种
+	char buf[1024] = { 0 };
+    while ( ifs.getline(buf, sizeof(buf)) ) {
+        cout << buf << endl;
+    }
+// 第三种
+	string buf;
+    while ( getline(ifs, buf) ) {
+        cout << buf << endl;
+    }
+// 第四种
+	char c;
+    while ( (c = ifs.get()) != EOF ) { // EOS: end of file
+        cout << c;
+    }
+```
 
