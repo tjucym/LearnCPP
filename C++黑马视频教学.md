@@ -674,3 +674,126 @@ int main() {
 - 如果子类中没有堆区数据，可以不写虚析构或者纯虚析构
 - 拥有纯虚析构函数的类也属于抽象类，需要在子类重写
 
+#### 多态案例3 - 组装电脑
+
+案例描述：
+
+电脑主要部件包括CPU、显卡、内存。将每个零件封装出一个抽象基类，提供不同厂商生产不同零件。
+
+创建电脑类提供使电脑工作的函数，调用每个零件工作的接口
+
+测试时组装三台不同电脑进行工作
+
+```c++
+#include <iostream>
+using namespace std;
+
+class CPU {
+public:
+    virtual void calculate() = 0;
+};
+
+class GPU {
+public:
+    virtual void display() = 0;
+};
+
+class Memory {
+public:
+    virtual void storage() = 0;
+};
+
+class Computer {
+private:
+    CPU *m_CPU;
+    GPU *m_GPU;
+    Memory *m_Memory;
+public:
+    Computer(CPU *cpu, GPU *gpu, Memory *memory) {
+        m_CPU = cpu;
+        m_GPU = gpu;
+        m_Memory = memory;
+    }
+
+    void doWork() {
+        m_CPU->calculate();
+        m_GPU->display();
+        m_Memory->storage();
+    }
+    // 在工厂类中提供析构函数，释放下面的零件
+    ~Computer() {
+        if (m_CPU != NULL) {
+            cout << "destructing CPU..." << endl;
+            delete m_CPU;
+            m_CPU = NULL;
+        }
+        if (m_GPU != NULL) {
+            cout << "destructing GPU..." << endl;
+            delete m_GPU;
+            m_GPU = NULL;
+        }
+        if (m_Memory != NULL) {
+            cout << "destructing Memory..." << endl;
+            delete m_Memory;
+            m_Memory = NULL;
+        }
+    }
+};
+
+class IntelCPU: public CPU {
+    public:
+    virtual void calculate() {
+        cout << "Intel's CPU start calculating..."<< endl;
+    }
+};
+
+class AMDCPU: public CPU {
+    public:
+    virtual void calculate() {
+        cout << "AMD's CPU start calculating..."<< endl;
+    }
+};
+
+class NvidiaGPU: public GPU {
+    public:
+    virtual void display() {
+        cout << "Nvidia's GPU start displaying..."<< endl;
+    }
+};
+
+class AMDGPU: public GPU {
+    public:
+    virtual void display() {
+        cout << "AMD's GPU start displaying..." << endl;
+    }
+};
+
+class SumsungMemory: public Memory {
+    public:
+    virtual void storage() {
+        cout << "Sumsung's Memory start storing..."<< endl;
+    }
+};
+
+void test01() {
+    // 第一台电脑
+    CPU *intel_cpu = new IntelCPU;
+    GPU *nvidia_gpu = new NvidiaGPU;
+    Memory *sumsung_memory = new SumsungMemory;
+
+    Computer *computer1 = new Computer(intel_cpu, nvidia_gpu, sumsung_memory);
+    computer1->doWork();
+    delete computer1;
+    cout << "=========================" << endl;
+    Computer *computer2 = new Computer(new AMDCPU, new AMDGPU, new SumsungMemory);
+    computer2->doWork();
+    delete computer2;
+}
+
+int main() {
+    test01();
+}
+```
+
+
+
